@@ -19,7 +19,7 @@ api = Api(app, version='1.0', title='Category Prediction API',
           description='API for predicting categories from product checks')
 
 # Пространство имён для Swagger
-ns = api.namespace('predict', description='Prediction operations')
+ns = api.namespace('', description='Prediction operations')
 
 # Модель данных для Swagger
 check_model = api.model('Check', {
@@ -108,7 +108,7 @@ with open("./model/label_encoder.pkl", "rb") as f:
     label_encoder = pickle.load(f)
 
 # Маршрут для предсказания
-@ns.route('/')
+@ns.route('/predict')
 class Predict(Resource):
     @ns.expect(check_model)
     @ns.response(200, 'Success')
@@ -120,13 +120,13 @@ class Predict(Resource):
         try:
             # Получение данных из POST-запроса
             data = request.json
-            check = data.get("check", [])
+            products = data.get("products", [])
             
-            if not check:
+            if not products:
                 return {"error": "Empty check provided"}, 400
             
             # Препроцессинг чека
-            processed_check = preprocess_check(check)
+            processed_check = preprocess_check(products)
             
             # TF-IDF векторизация
             X = vectorizer.transform(processed_check).toarray()
